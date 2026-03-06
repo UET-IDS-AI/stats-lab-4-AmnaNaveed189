@@ -37,7 +37,20 @@ def cdf_probabilities():
         simulated_gt5
     """
 
-    raise NotImplementedError
+    lambda_ = 1
+    x = 5
+
+    analytic_gt5 = math.exp(-lambda_ * x)         # P(X > 5)
+    analytic_lt5 = 1 - analytic_gt5               # P(X < 5)
+    analytic_interval = math.exp(-lambda_ * 3) - math.exp(-lambda_ * 7)  # P(3 < X < 7)
+
+    # Simulation
+    samples = np.random.exponential(scale=1/lambda_, size=100000)
+    simulated_gt5 = np.mean(samples > 5)         # Proportion > 5
+
+    return analytic_gt5, analytic_lt5, analytic_interval, simulated_gt5
+
+cdf_probabilities()
 
 
 # =========================================================
@@ -70,8 +83,29 @@ def pdf_validation_plot():
         is_valid_pdf
     """
 
-    raise NotImplementedError
+    f = lambda x: 2*x*np.exp(-x**2)
+    
+    # STEP 1: Non-negativity check
+    is_non_negative = np.all(f(np.linspace(0, 3, 1000)) >= 0)
+    
+    # STEP 2: Integral from 0 to infinity
+    integral_value, _ = quad(f, 0, np.inf)
+    
+    # STEP 3: Valid PDF?
+    is_valid_pdf = is_non_negative and np.isclose(integral_value, 1)
+    
+    # STEP 4: Plot
+    x_vals = np.linspace(0, 3, 1000)
+    y_vals = f(x_vals)
+    plt.plot(x_vals, y_vals)
+    plt.title("PDF f(x) = 2x e^(-x^2)")
+    plt.xlabel("x")
+    plt.ylabel("f(x)")
+    plt.show()
+    
+    return integral_value, is_valid_pdf
 
+pdf_validation_plot()
 
 # =========================================================
 # QUESTION 3 — Exponential Distribution
@@ -101,7 +135,20 @@ def exponential_probabilities():
         simulated_interval
     """
 
-    raise NotImplementedError
+    lambda_ = 1
+    
+    # Analytical
+    analytic_gt5 = math.exp(-lambda_ * 5)
+    analytic_interval = math.exp(-lambda_ * 1) - math.exp(-lambda_ * 3)  # P(1 < X < 3)
+    
+    # Simulation
+    samples = np.random.exponential(scale=1/lambda_, size=100000)
+    simulated_gt5 = np.mean(samples > 5)
+    simulated_interval = np.mean((samples > 1) & (samples < 3))
+    
+    return analytic_gt5, analytic_interval, simulated_gt5, simulated_interval
+
+exponential_probabilities()
 
 
 # =========================================================
@@ -137,4 +184,21 @@ def gaussian_probabilities():
         simulated_interval
     """
 
-    raise NotImplementedError
+    mu = 10
+    sigma = 2
+    
+    # Analytical
+    z_12 = (12 - mu) / sigma
+    z_8 = (8 - mu) / sigma
+    
+    analytic_le12 = norm.cdf(z_12)            # P(X ≤ 12)
+    analytic_interval = norm.cdf(z_12) - norm.cdf(z_8)  # P(8 < X < 12)
+    
+    # Simulation
+    samples = np.random.normal(loc=mu, scale=sigma, size=100000)
+    simulated_le12 = np.mean(samples <= 12)
+    simulated_interval = np.mean((samples > 8) & (samples < 12))
+    
+    return analytic_le12, analytic_interval, simulated_le12, simulated_interval
+
+gaussian_probabilities()
